@@ -11,7 +11,7 @@ String comma = ",";
 ArrayList<ArrayList<String>> arr = new ArrayList<ArrayList<String>>();  
 try   
 {  
-BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\clcco\\Downloads\\HW2\\dataset1.csv"));
+BufferedReader br = new BufferedReader(new FileReader("dataset1.csv"));
 while ((newLine = br.readLine()) != null)   //returns a Boolean value  
 {
     ArrayList<String> subArr = new ArrayList<String>();
