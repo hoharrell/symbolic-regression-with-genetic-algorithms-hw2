@@ -16,8 +16,8 @@ while ((newLine = br.readLine()) != null)   //returns a Boolean value
 {
     ArrayList<String> subArr = new ArrayList<String>();
     arr.add(subArr);
-String[] employee = newLine.split(comma);    // use comma as separator
-for(String s : employee){
+String[]  vals = newLine.split(comma);    // use comma as separator
+for(String s : vals){
     subArr.add(s);
 }
 }  
