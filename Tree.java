@@ -34,6 +34,10 @@ public class Tree {
         }
     }
 
+    public void addOperator(Node operator, Node c1)
+    {
+        
+    }
     public void addOperator(Node operator, Node c1, Node c2)
     {
         
