@@ -34,16 +34,36 @@ public class Tree {
         }
     }
 
-    public void postOrderTraverseTree(Node focusNode) { // LeftRightVisit
+    public void addOperator(Node operator, Node c1, Node c2)
+    {
+        
+    }
 
-        if (focusNode != null) {
+    public String postOrderTraverse(Node focusNode) { // LeftRightVisit
 
-            postOrderTraverseTree(focusNode.leftChild);
-
-            postOrderTraverseTree(focusNode.rightChild);
-
-            // System.out.println(focusNode);
+        if (focusNode == null) {
+            return "";
         }
+
+        String left = postOrderTraverse(focusNode.leftChild);
+        String right = postOrderTraverse(focusNode.rightChild);
+        
+        return left+right+focusNode.value;
+
+    }
+
+
+    //Visits furthest left (value), then parent node (operator), then furthest right
+    public String inOrderTraverse(Node focusNode) {
+
+        if (focusNode == null) {
+            return "";
+        }
+
+        String left = inOrderTraverse(focusNode.leftChild);
+        String right = inOrderTraverse(focusNode.rightChild);
+        
+        return left+Integer.toString(focusNode.value)+right;
 
     }
 
