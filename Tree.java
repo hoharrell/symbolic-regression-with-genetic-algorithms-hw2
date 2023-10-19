@@ -7,6 +7,7 @@ public class Tree {
 
         String type;
         String operator;
+        String val;
         int value;
         int descendants;
 
@@ -15,6 +16,7 @@ public class Tree {
         Node rightChild;
 
         Node(String symbol) {
+            this.val= symbol;
             try {
                 int i = Integer.parseInt(symbol);
                 // value is an Integer
@@ -33,13 +35,73 @@ public class Tree {
             return "node has a value " + value;
         }
     }
-
-    public void addOperator(Node operator, Node c1)
+    /*
+     * Creates a random tree of depth "depth"
+     * Operators include: e^x, sin(x), cos(x), log(x), *, +, -,/
+     */
+    public Tree(int depth, boolean bonusOperators)
     {
-        
+        ArrayList<String> operators = new ArrayList<String>();
+        ArrayList<String> constants = new ArrayList<String>();
+        for(int i=1; i<10; i++)
+        {
+            constants.add(""+i);
+        }
+        for(int i=0;i<6;i++)
+        {
+            constants.add("x");
+        }
+        if(bonusOperators){
+            operators.add("e^");
+            operators.add("sin");
+            operators.add("cos");
+            operators.add("log");
+        }
+        operators.add("*");
+        operators.add("+");
+        operators.add("-");
+        operators.add("/");
+        this.depth = 0;
+        Node temp;
+        root = new Node(operators.get((int)(Math.random()*operators.size())));
+        //I would actually change the way random trees are generated to be to keep randomly adding
+        //operators or to eventually add a constant, but sort of stay on one path the whole time.
+        populateToDepth(operators, constants, depth, root);
     }
-    public void addOperator(Node operator, Node c1, Node c2)
+    /*
+     * Creates a tree of depth between one and the given depth
+     */
+    public void populateToDepth(ArrayList<String> operators, ArrayList<String> constants, int depth, Node node)
     {
+        Node leftChild;
+        Node rightChild;
+        if(depth <= 0)
+            return;
+        if(depth == 1)
+        {
+            leftChild = new Node(constants.get((int)(Math.random()*constants.size())));
+            rightChild = new Node(constants.get((int)(Math.random()*constants.size())));
+        }
+        else{ 
+            if((int)Math.random() <= 5)
+                leftChild = new Node(operators.get((int)(Math.random()*operators.size())));
+            else{
+                
+                leftChild = new Node(constants.get((int)(Math.random()*constants.size())));
+            }
+
+            if((int)Math.random() <= 5)
+                rightChild = new Node(operators.get((int)(Math.random()*operators.size())));
+            else{
+                rightChild = new Node(constants.get((int)(Math.random()*constants.size())));
+            }
+        }
+        node.leftChild = leftChild;
+        leftChild.parent = node;
+        node.rightChild = rightChild;
+        rightChild.parent = node;
+        populateToDepth(operators, constants, depth-1, node.leftChild);
+        populateToDepth(operators, constants, depth-1, node.rightChild);
         
     }
 
