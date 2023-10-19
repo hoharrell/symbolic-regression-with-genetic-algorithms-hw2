@@ -135,8 +135,7 @@ public class Tree {
 
         String left = inOrderTraverse(focusNode.leftChild);
         String right = inOrderTraverse(focusNode.rightChild);
-
-        return left + Integer.toString(focusNode.value) + right;
+        return left + focusNode.val + right;
 
     }
 
