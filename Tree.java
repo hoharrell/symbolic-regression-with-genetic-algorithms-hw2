@@ -3,10 +3,15 @@ import java.util.*;
 public class Tree {
     public Node root;
 
+    Tree(Node root) {
+        this.root = new Node(root.symbol);
+    }
+
     class Node {
 
         String type;
         String operator;
+        String symbol;
         int value;
         int descendants;
 
@@ -15,6 +20,7 @@ public class Tree {
         Node rightChild;
 
         Node(String symbol) {
+            this.symbol = symbol;
             try {
                 int i = Integer.parseInt(symbol);
                 // value is an Integer
@@ -34,9 +40,8 @@ public class Tree {
         }
     }
 
-    public void addOperator(Node operator, Node c1, Node c2)
-    {
-        
+    public void addOperator(Node operator, Node c1, Node c2) {
+
     }
 
     public String postOrderTraverse(Node focusNode) { // LeftRightVisit
@@ -47,13 +52,13 @@ public class Tree {
 
         String left = postOrderTraverse(focusNode.leftChild);
         String right = postOrderTraverse(focusNode.rightChild);
-        
-        return left+right+focusNode.value;
+
+        return left + right + focusNode.value;
 
     }
 
-
-    //Visits furthest left (value), then parent node (operator), then furthest right
+    // Visits furthest left (value), then parent node (operator), then furthest
+    // right
     public String inOrderTraverse(Node focusNode) {
 
         if (focusNode == null) {
@@ -62,8 +67,8 @@ public class Tree {
 
         String left = inOrderTraverse(focusNode.leftChild);
         String right = inOrderTraverse(focusNode.rightChild);
-        
-        return left+Integer.toString(focusNode.value)+right;
+
+        return left + Integer.toString(focusNode.value) + right;
 
     }
 
@@ -89,5 +94,49 @@ public class Tree {
             root.descendants++;
             increment(root.parent);
         }
+    }
+
+    public Tree cloneTree(Tree self) {
+        Tree newTree = new Tree(self.root);
+        cloneNodes(newTree.root, self.root);
+        return self;
+    }
+
+    public void cloneNodes(Node newRoot, Node oldRoot) {
+        if (oldRoot.descendants > 0) {
+            if (oldRoot.leftChild != null) {
+                newRoot.leftChild = oldRoot.leftChild;
+            }
+            if (oldRoot.rightChild != null) {
+                newRoot.rightChild = oldRoot.rightChild;
+            }
+            cloneNodes(newRoot.leftChild, oldRoot.leftChild);
+            cloneNodes(newRoot.rightChild, oldRoot.rightChild);
+        }
+    }
+
+    public Tree[] crossover(Tree self, Tree other) {
+        Tree selfClone = cloneTree(self);
+        Tree otherClone = cloneTree(other);
+        Node selfFocusNode = getRandomNode(selfClone.root);
+        Node otherFocusNode = getRandomNode(otherClone.root);
+        Node selfParent = selfFocusNode.parent;
+        Node otherParent = otherFocusNode.parent;
+        if (selfFocusNode == selfParent.leftChild) {
+            selfParent.leftChild = otherFocusNode;
+        } else {
+            selfParent.rightChild = otherFocusNode;
+        }
+        if (otherFocusNode == otherParent.leftChild) {
+            otherParent.leftChild = selfFocusNode;
+        } else {
+            otherParent.rightChild = selfFocusNode;
+        }
+        Tree[] returnArray = { selfClone, otherClone };
+        return returnArray;
+    }
+
+    public Tree mutate(Tree self) {
+        return self;
     }
 }
