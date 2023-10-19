@@ -2,9 +2,10 @@ import java.util.*;
 
 public class Tree {
     public Node root;
-    public int depth;
-    public String[] constants;
-    public String[] operators;
+    private int depth;
+    //changed here
+    ArrayList<String> operators;
+    ArrayList<String> constants;
 
     Tree(Node root) {
         this.root = new Node(root.symbol);
@@ -49,16 +50,19 @@ public class Tree {
      * Creates a random tree of depth "depth"
      * Operators include: e^x, sin(x), cos(x), log(x), *, +, -,/
      */
-    public Tree(int depth, boolean bonusOperators) {
-        ArrayList<String> operators = new ArrayList<String>();
-        ArrayList<String> constants = new ArrayList<String>();
-        for (int i = 1; i < 10; i++) {
-            constants.add("" + i);
+    public Tree(int depth, boolean bonusOperators)
+    {
+        operators = new ArrayList<String>();
+        constants = new ArrayList<String>();
+        for(int i=1; i<10; i++)
+        {
+            constants.add(""+i);
         }
-        for (int i = 0; i < 6; i++) {
+        for(int i=0;i<6;i++)
+        {
             constants.add("x");
         }
-        if (bonusOperators) {
+        if(bonusOperators){
             operators.add("e^");
             operators.add("sin");
             operators.add("cos");
@@ -69,12 +73,7 @@ public class Tree {
         operators.add("-");
         operators.add("/");
         this.depth = 0;
-        Node temp;
-        root = new Node(operators.get((int) (Math.random() * operators.size())));
-        // I would actually change the way random trees are generated to be to keep
-        // randomly adding
-        // operators or to eventually add a constant, but sort of stay on one path the
-        // whole time.
+        root = new Node(operators.get((int)(Math.random()*operators.size())));
         populateToDepth(operators, constants, depth, root);
     }
 
@@ -112,6 +111,79 @@ public class Tree {
 
     }
 
+    /*
+     * Creates a tree of depth between one and the given depth
+     * need to also account for generating something that becomes zero
+     * and expressions that only take one parameter
+     * need to also account for multiple x values
+     */
+    public void populateToDepth(ArrayList<String> operators, ArrayList<String> constants, int depth, Node node)
+    {
+        Node leftChild;
+        Node rightChild;
+        if(depth <= 0)
+            return;
+        if(depth == 1)
+        {
+            leftChild = new Node(constants.get((int)(Math.random()*constants.size())));
+            rightChild = new Node(constants.get((int)(Math.random()*constants.size())));
+        }
+        else{ 
+            if((int)Math.random() <= 5)
+                leftChild = new Node(operators.get((int)(Math.random()*operators.size())));
+            else{
+                
+                leftChild = new Node(constants.get((int)(Math.random()*constants.size())));
+            }
+
+            if((int)Math.random() <= 5)
+                rightChild = new Node(operators.get((int)(Math.random()*operators.size())));
+            else{
+                rightChild = new Node(constants.get((int)(Math.random()*constants.size())));
+            }
+        }
+        node.leftChild = leftChild;
+        leftChild.parent = node;
+        node.rightChild = rightChild;
+        rightChild.parent = node;
+        increment(node);
+        populateToDepth(operators, constants, depth-1, node.leftChild);
+        populateToDepth(operators, constants, depth-1, node.rightChild);
+
+        
+    }
+
+    
+    public int expressionResult(int x)
+    {
+        return expressionResult(x, root);
+    }
+
+    public int expressionResult(int x, Node n)
+    {
+
+        if(n.type.equals("operator"))
+        {
+            String op = n.val;
+            System.out.println(op);
+            if(op.equals("*"))
+                return expressionResult(x,n.leftChild)*expressionResult(x,n.rightChild);
+            if(op.equals("+"))
+                return expressionResult(x,n.leftChild)+expressionResult(x,n.rightChild);
+            if(op.equals("/"))
+                return expressionResult(x,n.leftChild)/expressionResult(x,n.rightChild);
+            if(op.equals("-"))
+                return expressionResult(x,n.leftChild)-expressionResult(x,n.rightChild);
+            
+        }
+
+            if(n.val.equals("x"))
+                return x;
+            System.out.println(n.value);
+            return n.value;
+            
+    }
+    
     public String postOrderTraverse(Node focusNode) { // LeftRightVisit
 
         if (focusNode == null) {
@@ -125,8 +197,12 @@ public class Tree {
 
     }
 
-    // Visits furthest left (value), then parent node (operator), then furthest
-    // right
+    public String inOrderTraverse()
+    {
+        return inOrderTraverse(root);
+    }
+
+    //Visits furthest left (value), then parent node (operator), then furthest right
     public String inOrderTraverse(Node focusNode) {
 
         if (focusNode == null) {
@@ -135,7 +211,7 @@ public class Tree {
 
         String left = inOrderTraverse(focusNode.leftChild);
         String right = inOrderTraverse(focusNode.rightChild);
-        return left + focusNode.val + right;
+        return "("+left+focusNode.val+right+")";
 
     }
 
