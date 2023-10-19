@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.*;
 
 public class Main {
+    double MUTATION_PROB = 0.1;
+    double CROSSOVER_PROB = 0.6;
+
     public static void main(String[] args) {
         String newLine = "";
         String comma = ",";

@@ -3,8 +3,8 @@ import java.util.*;
 public class Tree {
     public Node root;
     public int depth;
-    public String[] constants;
-    public String[] operators;
+    public ArrayList<String> constants;
+    public ArrayList<String> operators;
 
     Tree(Node root) {
         this.root = new Node(root.symbol);
@@ -228,16 +228,16 @@ public class Tree {
         if (flip > 0.5) {
             // change to new constant or variable
             if (leafNode == leafNode.parent.leftChild) {
-                int rnd = new Random().nextInt(constants.length);
-                leafNode.parent.leftChild = new Node(constants[rnd]);
+                int randomIndex = (int) (Math.random() * constants.size());
+                leafNode.parent.leftChild = new Node(constants.get(randomIndex));
             }
         } else {
             // change to operator and give children
-            int rnd = new Random().nextInt(operators.length);
-            leafNode = new Node(operators[rnd]);
-            rnd = new Random().nextInt(constants.length);
-            leafNode.leftChild = new Node(constants[rnd]);
-            leafNode.rightChild = new Node(constants[rnd]);
+            int randomIndex = (int) (Math.random() * operators.size());
+            leafNode = new Node(operators.get(randomIndex));
+            randomIndex = (int) (Math.random() * constants.size());
+            leafNode.leftChild = new Node(constants.get(randomIndex));
+            leafNode.rightChild = new Node(constants.get(randomIndex));
         }
         return selfClone;
     }
