@@ -3,13 +3,12 @@ import java.util.*;
 public class Tree {
     public Node root;
     private int depth;
+    public ArrayList<Node> nodes;
+    boolean bonusOperators;
     // changed here
     ArrayList<String> operators;
     ArrayList<String> constants;
 
-    Tree(Node root) {
-        this.root = root;
-    }
 
     public static class Node {
 
@@ -46,7 +45,7 @@ public class Tree {
         }
     }
 
-    public static Node addNode(String val, Node parent) {
+    public Node addNode(String val, Node parent) {
         Node newNode = new Node(val);
         newNode.parent = parent;
         if (parent.leftChild == null) {
@@ -56,9 +55,33 @@ public class Tree {
         }
         increment(newNode.parent);
         incrementLeaves(newNode.parent);
+        nodes.add(newNode);
         return newNode;
     }
 
+    public Tree(Node root, boolean bonusOperators) {
+        this.bonusOperators = bonusOperators;
+        this.root = root;
+        operators = new ArrayList<String>();
+        constants = new ArrayList<String>();
+        nodes = new ArrayList<Node>();
+        for (int i = 1; i < 10; i++) {
+            constants.add("" + i);
+        }
+        for (int i = 0; i < 6; i++) {
+            constants.add("x");
+        }
+        if (bonusOperators) {
+            operators.add("e^");
+            operators.add("sin");
+            operators.add("cos");
+            operators.add("log");
+        }
+        operators.add("*");
+        operators.add("+");
+        operators.add("-");
+        operators.add("/");
+    }
     /*
      * Creates a random tree of depth "depth"
      * Operators include: e^x, sin(x), cos(x), log(x), *, +, -,/
@@ -66,6 +89,7 @@ public class Tree {
     public Tree(int depth, boolean bonusOperators) {
         operators = new ArrayList<String>();
         constants = new ArrayList<String>();
+        nodes = new ArrayList<Node>();
         for (int i = 1; i < 10; i++) {
             constants.add("" + i);
         }
@@ -84,6 +108,7 @@ public class Tree {
         operators.add("/");
         this.depth = depth;
         this.root = new Node(operators.get((int) (Math.random() * operators.size())));
+        nodes.add(this.root);
         populateToDepth(operators, constants, depth, root);
     }
 
@@ -105,7 +130,6 @@ public class Tree {
             leftChild = addNode(constants.get((int) (Math.random() * constants.size())), node);
             rightChild = addNode(constants.get((int) (Math.random() * constants.size())), node);
         } else {
-            System.out.println(Math.random());
             if (Math.random() <= 0.5)
                 leftChild = addNode(operators.get((int) (Math.random() * operators.size())), node);
             else {
@@ -136,7 +160,6 @@ public class Tree {
 
         if (n.type.equals("operator")) {
             String op = n.val;
-            System.out.println(op);
             if (op.equals("*"))
                 return expressionResult(x, n.leftChild) * expressionResult(x, n.rightChild);
             if (op.equals("+"))
@@ -150,7 +173,7 @@ public class Tree {
 
         if (n.val.equals("x"))
             return x;
-        System.out.println(n.value);
+        
         return n.value;
 
     }
@@ -186,34 +209,9 @@ public class Tree {
 
     }
 
-    public static Node getRandomNode(Node root, boolean includeNonLeaves) {
-        if (root.descendants == 0) {
-            return root;
-        }
-        double flip = Math.random();
-        if (includeNonLeaves) {
-            System.out.println(1.0 / (root.descendants + 1));
-            if (1.0 / (root.descendants + 1) > flip) {
-                return root;
-            }
-            flip = Math.random();
-            System.out.println((root.leftChild.descendants + 1.0) / root.descendants);
-            if ((root.leftChild.descendants + 1.0) / root.descendants > flip) {
-                return getRandomNode(root.leftChild, true);
-            }
-            return getRandomNode(root.rightChild, true);
-        } else {
-            flip = Math.random();
-            double leftChildLeaves = 0;
-            if (root.leftChild != null) {
-                leftChildLeaves = (root.leftChild.descendants == 0) ? 1.0 : (double) root.leftChild.descendants;
-            }
-            if (leftChildLeaves / root.leafDescendants > flip) {
-                return getRandomNode(root.leftChild, false);
-            } else {
-                return getRandomNode(root.rightChild, false);
-            }
-        }
+    public Node getRandomNode() {
+        int randIndex = (int)((double)nodes.size()*Math.random());
+        return nodes.get(randIndex); 
 
     }
 
@@ -231,35 +229,44 @@ public class Tree {
         }
     }
 
-    public static Tree cloneTree(Tree self) {
-        Node cloneRoot = new Node(self.root.val);
-        Tree newTree = new Tree(cloneRoot);
-        cloneNodes(newTree.root, self.root);
+    public Tree cloneTree() {
+        Node cloneRoot = new Node(this.root.val);
+        Tree newTree = new Tree(cloneRoot, this.bonusOperators);
+        newTree.nodes.add(cloneRoot);
+        cloneNodes(newTree.root, this.root, newTree);
         return newTree;
     }
 
-    public static void cloneNodes(Node newRoot, Node oldRoot) {
+
+    public void cloneNodes(Node newRoot, Node oldRoot, Tree newTree) {
         if (oldRoot.descendants > 0) {
             if (oldRoot.leftChild != null) {
-                addNode(oldRoot.leftChild.val, newRoot);
+                newTree.addNode(oldRoot.leftChild.val, newRoot);
             }
             if (oldRoot.rightChild != null) {
-                addNode(oldRoot.rightChild.val, newRoot);
+                newTree.addNode(oldRoot.rightChild.val, newRoot);
             }
-            cloneNodes(newRoot.leftChild, oldRoot.leftChild);
-            cloneNodes(newRoot.rightChild, oldRoot.rightChild);
+            cloneNodes(newRoot.leftChild, oldRoot.leftChild, newTree);
+            cloneNodes(newRoot.rightChild, oldRoot.rightChild, newTree);
         }
     }
 
     public static Tree[] crossover(Tree self, Tree other) {
-        Tree selfClone = cloneTree(self);
-        Tree otherClone = cloneTree(other);
-        System.out.println(selfClone.inOrderTraverse());
-        System.out.println(otherClone.inOrderTraverse());
-        Node selfFocusNode = getRandomNode(selfClone.root, true);
-        Node otherFocusNode = getRandomNode(otherClone.root, true);
+        Tree selfClone = self.cloneTree();
+        Tree otherClone = other.cloneTree();
+        Node selfFocusNode = selfClone.getRandomNode();
+        Node otherFocusNode = otherClone.getRandomNode();
+        while(selfFocusNode.parent == null)
+        {
+            selfFocusNode = selfClone.getRandomNode();
+        }
+        while(otherFocusNode.parent == null)
+        {
+            otherFocusNode = otherClone.getRandomNode();
+        }
         Node selfParent = selfFocusNode.parent;
         Node otherParent = otherFocusNode.parent;
+
         if (selfFocusNode == selfParent.leftChild) {
             selfParent.leftChild = otherFocusNode;
         } else {
@@ -270,28 +277,38 @@ public class Tree {
         } else {
             otherParent.rightChild = selfFocusNode;
         }
+        selfClone.nodes = new ArrayList<Node>();
+        otherClone.nodes = new ArrayList<Node>();
+        updateNodes(selfClone.root,selfClone);
+        updateNodes(otherClone.root, otherClone);
         Tree[] returnArray = { selfClone, otherClone };
         return returnArray;
     }
 
-    public static Tree mutate(Tree self) {
-        Tree selfClone = cloneTree(self);
-        Node leafNode = getRandomNode(selfClone.root, false);
-        double flip = Math.random();
-        if (flip > 0.5) {
-            // change to new constant or variable
-            if (leafNode == leafNode.parent.leftChild) {
-                int randomIndex = (int) (Math.random() * self.constants.size());
-                leafNode.parent.leftChild = new Node(self.constants.get(randomIndex));
-            }
-        } else {
-            // change to operator and give children
-            int randomIndex = (int) (Math.random() * self.operators.size());
-            leafNode = new Node(self.operators.get(randomIndex));
-            randomIndex = (int) (Math.random() * self.constants.size());
-            leafNode.leftChild = new Node(self.constants.get(randomIndex));
-            leafNode.rightChild = new Node(self.constants.get(randomIndex));
+    public static void updateNodes(Node node, Tree tree)
+    {
+        if(node == null)
+            return;
+        
+        tree.nodes.add(node);
+        updateNodes(node.leftChild, tree);
+        updateNodes(node.rightChild, tree);
+    }
+
+    public Tree mutate() {
+        Tree  clone = this.cloneTree();
+        Node node = clone.getRandomNode();
+        if(node.type.equals("operator"))
+        {
+            node.val = operators.get((int)(operators.size()*Math.random()));
         }
-        return selfClone;
+        else
+        {
+            node.val = constants.get((int)(constants.size()*Math.random()));
+            if(!(node.val.charAt(0) == 'x'))
+                node.value = Integer.parseInt(node.val);
+
+        }
+        return clone;
     }
 }
