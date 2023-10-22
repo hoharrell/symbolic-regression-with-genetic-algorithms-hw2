@@ -1,6 +1,7 @@
 import java.util.*;
 
-public class Tree {
+public class Tree{
+    public double fitness;
     public Node root;
     private int depth;
     public ArrayList<Node> nodes;
@@ -14,7 +15,7 @@ public class Tree {
 
         String type;
         String val;
-        int value;
+        double value;
         int descendants;
         int leafDescendants;
 
@@ -26,7 +27,7 @@ public class Tree {
             this.val = symbol;
             this.descendants = 0;
             try {
-                int i = Integer.parseInt(symbol);
+                double i = Double.parseDouble(symbol);
                 // value is an Integer
                 this.type = "constant";
                 this.value = i;
@@ -152,11 +153,11 @@ public class Tree {
 
     }
 
-    public int expressionResult(int x) {
+    public double expressionResult(double x) {
         return expressionResult(x, root);
     }
 
-    public static int expressionResult(int x, Node n) {
+    public static double expressionResult(double x, Node n) {
 
         if (n.type.equals("operator")) {
             String op = n.val;
@@ -295,6 +296,11 @@ public class Tree {
         updateNodes(node.rightChild, tree);
     }
 
+    public static void simplify(Node node)
+    {
+        
+    }
+
     public Tree mutate() {
         Tree  clone = this.cloneTree();
         Node node = clone.getRandomNode();
@@ -306,9 +312,10 @@ public class Tree {
         {
             node.val = constants.get((int)(constants.size()*Math.random()));
             if(!(node.val.charAt(0) == 'x'))
-                node.value = Integer.parseInt(node.val);
+                node.value = Double.parseDouble(node.val);
 
         }
         return clone;
     }
+
 }
