@@ -3,7 +3,6 @@ import java.util.*;
 public class Tree{
     public double fitness;
     public Node root;
-    private int depth;
     public ArrayList<Node> nodes;
     boolean bonusOperators;
     // changed here
@@ -17,7 +16,6 @@ public class Tree{
         String val;
         double value;
         int descendants;
-        int leafDescendants;
 
         Node parent;
         Node leftChild;
@@ -33,7 +31,7 @@ public class Tree{
                 this.value = i;
 
             } catch (NumberFormatException e) {
-                if (symbol == "x") {
+                if (symbol.charAt(0) == 'x') {
                     this.type = "variable";
                 } else {
                     this.type = "operator";
@@ -54,10 +52,13 @@ public class Tree{
         } else {
             parent.rightChild = newNode;
         }
-        increment(newNode.parent);
-        incrementLeaves(newNode.parent);
         nodes.add(newNode);
         return newNode;
+    }
+
+    public void removeNode(Node n)
+    {
+        
     }
 
     public Tree(Node root, boolean bonusOperators) {
@@ -107,7 +108,6 @@ public class Tree{
         operators.add("+");
         operators.add("-");
         operators.add("/");
-        this.depth = depth;
         this.root = new Node(operators.get((int) (Math.random() * operators.size())));
         nodes.add(this.root);
         populateToDepth(operators, constants, depth, root);
@@ -142,12 +142,7 @@ public class Tree{
                 rightChild = addNode(constants.get((int) (Math.random() * constants.size())), node);
             }
         }
-        // node.leftChild = leftChild;
-        // leftChild.parent = node;
-        // node.rightChild = rightChild;
-        // rightChild.parent = node;
-        // increment(node);
-        // incrementLeaves(node);
+
         populateToDepth(operators, constants, depth - 1, node.leftChild);
         populateToDepth(operators, constants, depth - 1, node.rightChild);
 
@@ -216,20 +211,7 @@ public class Tree{
 
     }
 
-    public static void increment(Node focusNode) {
-        focusNode.descendants++;
-        if (focusNode.parent != null) {
-            increment(focusNode.parent);
-        }
-    }
-
-    public static void incrementLeaves(Node focusNode) {
-        focusNode.leafDescendants++;
-        if (focusNode.rightChild != null && focusNode.parent != null) {
-            incrementLeaves(focusNode.parent);
-        }
-    }
-
+    
     public Tree cloneTree() {
         Node cloneRoot = new Node(this.root.val);
         Tree newTree = new Tree(cloneRoot, this.bonusOperators);
@@ -240,7 +222,7 @@ public class Tree{
 
 
     public void cloneNodes(Node newRoot, Node oldRoot, Tree newTree) {
-        if (oldRoot.descendants > 0) {
+        if (oldRoot != null) {
             if (oldRoot.leftChild != null) {
                 newTree.addNode(oldRoot.leftChild.val, newRoot);
             }
@@ -259,10 +241,20 @@ public class Tree{
         Node otherFocusNode = otherClone.getRandomNode();
         while(selfFocusNode.parent == null)
         {
+            if(selfClone.nodes.size() == 1)
+            {
+                Tree[] arr = {selfClone, otherClone};
+                return arr;
+            }
             selfFocusNode = selfClone.getRandomNode();
         }
         while(otherFocusNode.parent == null)
         {
+            if(otherClone.nodes.size() == 1)
+            {
+                Tree[] arr = {selfClone, otherClone};
+                return arr;
+            }
             otherFocusNode = otherClone.getRandomNode();
         }
         Node selfParent = selfFocusNode.parent;
@@ -282,6 +274,8 @@ public class Tree{
         otherClone.nodes = new ArrayList<Node>();
         updateNodes(selfClone.root,selfClone);
         updateNodes(otherClone.root, otherClone);
+        selfClone.simplify();
+        otherClone.simplify();
         Tree[] returnArray = { selfClone, otherClone };
         return returnArray;
     }
@@ -296,8 +290,108 @@ public class Tree{
         updateNodes(node.rightChild, tree);
     }
 
-    public static void simplify(Node node)
+    public void simplify()
     {
+        simplify(this.root);
+    }
+
+    public void simplify(Node node)
+    {
+        if(node == null)
+            return;
+        
+        simplify(node.leftChild);
+        simplify(node.rightChild);
+        double simplify;
+        if(node.type.equals("operator") && node.leftChild != null && node.rightChild != null){
+            if(node.leftChild.type.equals("constant") && node.rightChild.type.equals("constant"))
+            {
+                simplify = expressionResult(0, node);
+                node.type = "constant";
+                node.val = ""+simplify;
+                node.value = simplify;
+                nodes.remove(node.leftChild);
+                nodes.remove(node.rightChild);
+                node.leftChild = null;
+                node.rightChild = null;
+                return;
+            }
+            if(node.val.equals("*") && node.leftChild.value == 1.0)
+            {
+                
+                nodes.remove(node);
+                nodes.remove(node.leftChild);
+                if(node == root)
+                    root = node.rightChild;
+                else
+                    node.rightChild.parent = node.parent;
+                node = node.rightChild;
+                return;                
+            }
+            if(node.val.equals("*") && node.rightChild.value == 1.0)
+            {
+                nodes.remove(node);
+                nodes.remove(node.rightChild);
+                if(node == root)
+                    root = node.leftChild;
+                else
+                    node.leftChild.parent = node.parent;
+                node = node.leftChild;
+                
+                return;                
+            }
+            if(node.val.equals("-") && (node.rightChild.type.equals("constant") && node.rightChild.value == 0.0))
+            {
+                nodes.remove(node);
+                nodes.remove(node.rightChild);
+                if(node == root)
+                    root = node.leftChild;
+                else
+                    node.leftChild.parent = node.parent;
+                node = node.leftChild;
+                
+                return;                    
+            }
+            if(node.val.equals("*") && (node.rightChild.type.equals("constant") && node.rightChild.value == 0.0) || (node.leftChild.type.equals("constant") && node.leftChild.value == 0.0))
+            {
+                node.type = "constant";
+                node.val = ""+0;
+                node.value = 0;
+                nodes.remove(node.leftChild);
+                nodes.remove(node.rightChild);
+                node.leftChild = null;
+                node.rightChild = null;
+                return;
+            }
+            if(node.leftChild.val.equals(node.rightChild.val))
+            {
+                if(node.val.equals("-"))
+                {
+                node.type = "constant";
+                node.val = ""+0;
+                node.value = 0;
+                nodes.remove(node.leftChild);
+                nodes.remove(node.rightChild);
+                node.leftChild = null;
+                node.rightChild = null;
+                return;
+                }
+                if(node.val.equals("/"))
+                {
+                node.type = "constant";
+                node.val = ""+1;
+                node.value = 1;
+                nodes.remove(node.leftChild);
+                nodes.remove(node.rightChild);
+                node.leftChild = null;
+                node.rightChild = null;
+                return;
+                }
+
+            }
+    }
+
+
         
     }
 
