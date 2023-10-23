@@ -73,7 +73,7 @@ public class Tree{
             }
         }
         else{
-            for(int i=0; i<2; i++)
+            for(int i=0; i<3; i++)
             {
                 constants.add("x1");
                 constants.add("x2");
@@ -109,7 +109,7 @@ public class Tree{
             }
         }
         else{
-            for(int i=0; i<2; i++)
+            for(int i=0; i<3; i++)
             {
                 constants.add("x1");
                 constants.add("x2");
