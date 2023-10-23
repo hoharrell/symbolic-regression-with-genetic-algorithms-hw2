@@ -8,6 +8,7 @@ public class Tree{
     // changed here
     ArrayList<String> operators;
     ArrayList<String> constants;
+    boolean bonusFields;
 
 
     public static class Node {
@@ -56,13 +57,9 @@ public class Tree{
         return newNode;
     }
 
-    public void removeNode(Node n)
-    {
-        
-    }
-
-    public Tree(Node root, boolean bonusOperators) {
+    public Tree(Node root, boolean bonusOperators, boolean bonusFields) {
         this.bonusOperators = bonusOperators;
+        this.bonusFields = bonusFields;
         this.root = root;
         operators = new ArrayList<String>();
         constants = new ArrayList<String>();
@@ -70,8 +67,18 @@ public class Tree{
         for (int i = 1; i < 10; i++) {
             constants.add("" + i);
         }
-        for (int i = 0; i < 6; i++) {
-            constants.add("x");
+        if(!bonusFields){
+            for (int i = 0; i < 6; i++) {
+                constants.add("x");
+            }
+        }
+        else{
+            for(int i=0; i<2; i++)
+            {
+                constants.add("x1");
+                constants.add("x2");
+                constants.add("x3");
+            }
         }
         if (bonusOperators) {
             operators.add("e^");
@@ -88,15 +95,26 @@ public class Tree{
      * Creates a random tree of depth "depth"
      * Operators include: e^x, sin(x), cos(x), log(x), *, +, -,/
      */
-    public Tree(int depth, boolean bonusOperators) {
+    public Tree(int depth, boolean bonusOperators, boolean bonusFields) {
         operators = new ArrayList<String>();
         constants = new ArrayList<String>();
         nodes = new ArrayList<Node>();
+        this.bonusFields = bonusFields;
         for (int i = 1; i < 10; i++) {
             constants.add("" + i);
         }
-        for (int i = 0; i < 6; i++) {
-            constants.add("x");
+        if(!bonusFields){
+            for (int i = 0; i < 6; i++) {
+                constants.add("x");
+            }
+        }
+        else{
+            for(int i=0; i<2; i++)
+            {
+                constants.add("x1");
+                constants.add("x2");
+                constants.add("x3");
+            }
         }
         if (bonusOperators) {
             operators.add("e^");
@@ -150,6 +168,37 @@ public class Tree{
 
     public double expressionResult(double x) {
         return expressionResult(x, root);
+    }
+
+    public double expressionResult(double[] vars)
+    {
+        return expressionResult(vars, root);
+    }
+
+    public static double expressionResult(double[] vars, Node n)
+    {
+        if (n.type.equals("operator")) {
+            String op = n.val;
+            if (op.equals("*"))
+                return expressionResult(vars, n.leftChild) * expressionResult(vars, n.rightChild);
+            if (op.equals("+"))
+                return expressionResult(vars, n.leftChild) + expressionResult(vars, n.rightChild);
+            if (op.equals("/"))
+                return expressionResult(vars, n.leftChild) / expressionResult(vars, n.rightChild);
+            if (op.equals("-"))
+                return expressionResult(vars, n.leftChild) - expressionResult(vars, n.rightChild);
+
+        }
+
+        if (n.val.equals("x"))
+            return vars[0];
+        
+        if (n.val.charAt(0) == 'x')
+        {
+            return vars[((int)n.val.charAt(1))-1];
+        }
+        
+        return n.value;
     }
 
     public static double expressionResult(double x, Node n) {
@@ -214,7 +263,7 @@ public class Tree{
     
     public Tree cloneTree() {
         Node cloneRoot = new Node(this.root.val);
-        Tree newTree = new Tree(cloneRoot, this.bonusOperators);
+        Tree newTree = new Tree(cloneRoot, this.bonusOperators, this.bonusFields);
         newTree.nodes.add(cloneRoot);
         cloneNodes(newTree.root, this.root, newTree);
         return newTree;
@@ -340,6 +389,7 @@ public class Tree{
                 
                 return;                
             }
+
             if(node.val.equals("-") && (node.rightChild.type.equals("constant") && node.rightChild.value == 0.0))
             {
                 nodes.remove(node);
@@ -352,7 +402,8 @@ public class Tree{
                 
                 return;                    
             }
-            if(node.val.equals("*") && (node.rightChild.type.equals("constant") && node.rightChild.value == 0.0) || (node.leftChild.type.equals("constant") && node.leftChild.value == 0.0))
+
+            if(node.val.equals("*") && ((node.rightChild.type.equals("constant") && node.rightChild.value == 0.0) || (node.leftChild.type.equals("constant") && node.leftChild.value == 0.0)))
             {
                 node.type = "constant";
                 node.val = ""+0;
@@ -363,7 +414,7 @@ public class Tree{
                 node.rightChild = null;
                 return;
             }
-            if(node.leftChild.val.equals(node.rightChild.val))
+            if(node.leftChild.val.equals(node.rightChild.val) && (!node.rightChild.type.equals("operator")))
             {
                 if(node.val.equals("-"))
                 {
@@ -409,6 +460,7 @@ public class Tree{
                 node.value = Double.parseDouble(node.val);
 
         }
+        clone.simplify();
         return clone;
     }
 
