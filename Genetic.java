@@ -4,14 +4,14 @@ import java.util.*;
 //
 public class Genetic{
 
-    public static final int DEPTH = 3; //maximum depth of randomly generated trees
-    public static final int GENERATIONS = 30; //number of generations run for
+    public static final int DEPTH = 4; //maximum depth of randomly generated trees
+    public static final int GENERATIONS = 200; //number of generations run for
     public static final double PERCENT_SELECTION = .7; //this portion of the children will be selected using tournament selection and the rest are randomly generated to increase diversity
     public static final double ERROR_PORTION = .25; //portion of dataset that's being checked to avoid overfitting hasn't been implemented yet, overfitting hasn't yet been an issue
     public static final double MUTATION_RATE = .95; //what Math.Random has to beat for a mutation
     public static final double UPSET_RATE = .95; //what Math.Random has to beat to allow an upset in tournament selection
     public static final double TOURNAMENT_PERCENT = .2; //percent of population which participates in tournament selection
-    public static final int POPULATION_SIZE = 10000; //size of population
+    public static final int POPULATION_SIZE = 50000; //size of population
     public static Tree geneticAlgorithm(ArrayList<ArrayList<String>> data, boolean bonusFields)
     {
 
@@ -65,7 +65,8 @@ public class Genetic{
             }
             System.out.println("Current Generation: " + i + " with fitness " + best.fitness + "from function" + best.inOrderTraverse() + " and size " + children.size());
             parents = children;
-            
+            if(best.fitness == 0)
+                break;
         }
         return best;
 
@@ -137,7 +138,6 @@ public class Genetic{
         for(int i=1; i<cap; i++)
         {
             if(!tree.bonusFields){
-                                System.out.println("here, but I shouldn't be!");
             actual = Double.parseDouble(data.get(i).get(1));
             guess = tree.expressionResult(Double.parseDouble(data.get(i).get(0)));
             error+=((actual-guess)*(actual-guess));
