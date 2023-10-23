@@ -195,7 +195,7 @@ public class Tree{
         
         if (n.val.charAt(0) == 'x')
         {
-            return vars[((int)n.val.charAt(1))-1];
+            return vars[((int)n.val.charAt(1))-'1'];
         }
         
         return n.value;
