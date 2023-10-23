@@ -6,6 +6,7 @@ public class Main
 {  
 public static void main(String[] args)   
 {  
+    //Beginning of testing part2
     String newLine = "";  
     String comma = ",";  
     ArrayList<ArrayList<String>> arr = new ArrayList<ArrayList<String>>();  
@@ -21,17 +22,40 @@ public static void main(String[] args)
         subArr.add(s);
     }
     }
-    Tree regression = Genetic.geneticAlgorithm(arr);  
+    Tree regression = Genetic.geneticAlgorithm(arr, false);  
     System.out.println(regression.inOrderTraverse());
 
     }   
     catch (IOException e)   
     {  
     e.printStackTrace();  
-    }  
+    }
+    
+    arr = new ArrayList<ArrayList<String>>();  
+    try   
+    {  
+    BufferedReader br = new BufferedReader(new FileReader("dataset2.csv"));
+    while ((newLine = br.readLine()) != null)   //returns a Boolean value  
+    {
+        ArrayList<String> subArr = new ArrayList<String>();
+        arr.add(subArr);
+    String[]  vals = newLine.split(comma);    // use comma as separator
+    for(String s : vals){
+        subArr.add(s);
+    }
+    }
+    Tree regression = Genetic.geneticAlgorithm(arr, true);  
+    System.out.println(regression.inOrderTraverse());
 
-    // Tree tree1 = new Tree(4, false);
-    // Tree tree2 = new Tree(4, false);
+    }   
+    catch (IOException e)   
+    {  
+    e.printStackTrace();  
+    }
+    //end of test part 2
+
+    // Tree tree1 = new Tree(4, false, true);
+    // Tree tree2 = new Tree(4, false, true);
     // System.out.println("Tree 1:" + tree1.inOrderTraverse());
     // System.out.println("Tree 2: " + tree2.inOrderTraverse());
     // tree1.simplify();
