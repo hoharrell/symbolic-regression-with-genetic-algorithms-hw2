@@ -104,6 +104,7 @@ public class Tree{
         constants = new ArrayList<String>();
         nodes = new ArrayList<Node>();
         this.bonusFields = bonusFields;
+        this.bonusOperators = bonusOperators;
         for (int i = 1; i < 10; i++) {
             constants.add("" + i);
         }
@@ -177,6 +178,7 @@ public class Tree{
 
     public double expressionResult(double x) {
         return expressionResult(x, root);
+
     }
 
     public double expressionResult(double[] vars)
@@ -319,7 +321,9 @@ public class Tree{
                 Tree[] arr = {selfClone, otherClone};
                 return arr;
             }
+
             selfFocusNode = selfClone.getRandomNode();
+            
         }
         while(otherFocusNode.parent == null)
         {
@@ -499,31 +503,6 @@ public class Tree{
         }
         clone.simplify();
         return clone;
-    }
-
-
-    public void generateNewConstant(ArrayList<ArrayList<String>> arr) {
-        Random rand = new Random();
-        int rowIndex = rand.nextInt(arr.size() - 1) + 1;
-        int colIndex = rand.nextInt(arr.get(1).size());
-        double val1 = Double.parseDouble(arr.get(rowIndex).get(colIndex));
-        rowIndex = rand.nextInt(arr.size() - 1) + 1;
-        colIndex = rand.nextInt(arr.get(1).size());
-        double val2 = Double.parseDouble(arr.get(rowIndex).get(colIndex));
-        double newConstant;
-        int flip = rand.nextInt(4);
-        switch (flip) {
-            case 0:
-                newConstant = val1 + val2;
-            case 1:
-                newConstant = val1 - val2;
-            case 2:
-                newConstant = val1 * val2;
-            default:
-                newConstant = val1 / val2;
-        }
-        int constantPosition = rand.nextInt(10);
-        this.constants.set(constantPosition, String.valueOf(newConstant));
     }
 
 }
