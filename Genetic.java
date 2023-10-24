@@ -18,13 +18,13 @@ public class Genetic {
                                                         // selection
     public static final int POPULATION_SIZE = 50000; // size of population
 
-    public static Tree geneticAlgorithm(ArrayList<ArrayList<String>> data, boolean bonusFields) {
+    public static Tree geneticAlgorithm(ArrayList<ArrayList<String>> data, boolean bonusFields, boolean bonusOperators) {
 
         ArrayList<Tree> parents = new ArrayList<Tree>();
         Tree temp;
         Tree best;
         while (parents.size() < POPULATION_SIZE) {
-            temp = new Tree(DEPTH, false, bonusFields);
+            temp = new Tree(DEPTH, bonusOperators, bonusFields);
             temp.generateNewConstant(data);
             temp.fitness = evaluate(data, temp, (int) (ERROR_PORTION * data.size()));
             if (Double.isFinite(temp.fitness) && temp.fitness > 0.0)
@@ -57,7 +57,7 @@ public class Genetic {
                     children.add(child);
             }
             while (children.size() < parents.size()) {
-                temp = new Tree(DEPTH, false, bonusFields);
+                temp = new Tree(DEPTH, bonusOperators, bonusFields);
                 temp.generateNewConstant(data);
                 temp.fitness = evaluate(data, temp, (int) (data.size() * ERROR_PORTION));
                 if (Double.isFinite(temp.fitness)) {
