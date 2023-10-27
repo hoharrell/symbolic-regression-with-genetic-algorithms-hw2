@@ -4,10 +4,10 @@ import java.util.*;
 //
 public class Genetic{
 
-    public static final int DEPTH = 4; //maximum depth of randomly generated trees
+    public static final int DEPTH = 5; //maximum depth of randomly generated trees
     public static final int GENERATIONS = 200; //number of generations run for
     public static final double PERCENT_SELECTION = .7; //this portion of the children will be selected using tournament selection and the rest are randomly generated to increase diversity
-    public static final double ERROR_PORTION = .25; //portion of dataset that's being checked to avoid overfitting hasn't been implemented yet, overfitting hasn't yet been an issue
+    public static final double ERROR_PORTION = .5; //portion of dataset that's being checked to avoid overfitting hasn't been implemented yet, overfitting hasn't yet been an issue
     public static final double MUTATION_RATE = .95; //what Math.Random has to beat for a mutation
     public static final double UPSET_RATE = .95; //what Math.Random has to beat to allow an upset in tournament selection
     public static final double TOURNAMENT_PERCENT = .2; //percent of population which participates in tournament selection
@@ -130,6 +130,18 @@ public class Genetic{
     {
         if(cap > data.size())
             throw new IndexOutOfBoundsException("Choose a cap within the data set!");
+
+        //This if statement is in place to punish cases where expression tree
+        //is composed of a constant
+        if(tree.bonusFields)
+        {
+            double[] arr1 = {0,0,0};
+            double[] arr2 = {1000*Math.random(),1000*Math.random(),1000*Math.random()};
+            if(tree.expressionResult(arr1) == tree.expressionResult(arr2))
+            {
+                return Double.MAX_VALUE;
+            }
+        }
 
         double actual = 0;
         double guess = 0;
