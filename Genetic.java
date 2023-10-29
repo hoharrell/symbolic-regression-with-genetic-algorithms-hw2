@@ -11,7 +11,7 @@ public class Genetic{
     public static final double MUTATION_RATE = .95; //what Math.Random has to beat for a mutation
     public static final double UPSET_RATE = .95; //what Math.Random has to beat to allow an upset in tournament selection
     public static final double TOURNAMENT_PERCENT = .2; //percent of population which participates in tournament selection
-    public static final int POPULATION_SIZE = 50000; //size of population
+    public static final int POPULATION_SIZE = 5000; //size of population
     public static Tree geneticAlgorithm(ArrayList<ArrayList<String>> data, boolean bonusFields, boolean bonusOperators)
     {
 
