@@ -35,9 +35,21 @@ public class Genetic{
             //experiment with portion which is composed by selection and change
             while(children.size() < PERCENT_SELECTION*parents.size()){
             //dial in portion for tournament select
-                Tree[] arr = tournamentSelect(parents, (int)(TOURNAMENT_PERCENT*POPULATION_SIZE), data);
+
+                Tree[] arr = rankSelection(parents, data);
+                //Tree[] arr = tournamentSelect(parents, data);
+                //Tree[] arr = rouletteSelect(parents, data);
                 arr = Tree.crossover(arr[0],arr[1]);
-                Tree child = arr[(int)(2*Math.random())];
+                arr[0].fitness = evaluate(data, arr[0], (int)(data.size()*ERROR_PORTION));
+                arr[1].fitness = evaluate(data, arr[1], (int)(data.size()*ERROR_PORTION));
+                Tree child;
+                if(arr[0].fitness < arr[1].fitness && Double.isFinite(arr[0].fitness))
+                {
+                    child = arr[0];
+                }
+                else
+                    child = arr[1];
+
                 //possibly tinker with mutation rate.
                 if(Math.random() > MUTATION_RATE){
                     child = child.mutate();
@@ -46,11 +58,11 @@ public class Genetic{
                     //evaluating by 1/4 the data to avoid overfitting
                 child.fitness = evaluate(data, child, (int)(data.size()*ERROR_PORTION));
 
-                //
+    
                 if(Double.isFinite(child.fitness) && child.fitness < best.fitness)
                     best = child;
                 
-                if(Double.isFinite(best.fitness))
+                if(Double.isFinite(child.fitness))
                     children.add(child);
             }
             while(children.size()<parents.size())
@@ -73,10 +85,69 @@ public class Genetic{
 
     }
 
+    public static Tree rankSelection(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data, boolean override)
+    {
+        trees.sort(Comparator.naturalOrder());
+        int sum = 0;
+        for(int i=1; i<=trees.size(); i++)
+        {
+            sum+=i;
+        }
+        int spin = (int)(sum*Math.random());
+        sum = 0;
+        for(int i=0; i<trees.size(); i++)
+        {
+            sum+=i+1;
+            if(sum >= spin)
+                return trees.get(i);
+        }
 
-    public static Tree[] tournamentSelect(ArrayList<Tree> trees, int tournamentSize, ArrayList<ArrayList<String>> data)
+        return null;
+
+    }
+
+    public static Tree[] rankSelection(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data)
     {
         Tree[] arr = new Tree[2];
+        arr[0] = rankSelection(trees, data, true);
+        arr[1] = rankSelection(trees,data, true);
+        return arr;
+    }
+
+    public static Tree rouletteSelect(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data, boolean override)
+    {
+        double sum = 0;
+        for(Tree t : trees)
+        {
+            if(!Double.isFinite(t.fitness))
+                System.out.println("not finite");
+            sum+=t.fitness;
+        }
+        double spin = sum*Math.random();
+        sum = 0;
+        for(Tree t : trees)
+        {
+            sum+=t.fitness;
+            if(sum >= spin)
+                return t;
+        }
+        System.out.println("hereeee" + trees.size());
+        return null;
+    }
+
+    public static Tree[] rouletteSelect(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data)
+    {
+        Tree[] arr = new Tree[2];
+        arr[0] = rouletteSelect(trees, data, true);
+        arr[1] = rouletteSelect(trees,data, true);
+        return arr;
+    }
+
+
+    public static Tree[] tournamentSelect(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data)
+    {
+        Tree[] arr = new Tree[2];
+        int tournamentSize = (int)(TOURNAMENT_PERCENT*POPULATION_SIZE);
         Set<Tree> players = new HashSet<Tree>();
         Tree fittest = trees.get(0);
         Tree temp;
