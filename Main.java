@@ -12,7 +12,7 @@ public static void main(String[] args)
     ArrayList<ArrayList<String>> arr = new ArrayList<ArrayList<String>>();  
     try   
     {  
-    BufferedReader br = new BufferedReader(new FileReader("dataset1.csv"));
+    BufferedReader br = new BufferedReader(new FileReader("dataset2.csv"));
     while ((newLine = br.readLine()) != null)   //returns a Boolean value  
     {
         ArrayList<String> subArr = new ArrayList<String>();
@@ -23,9 +23,9 @@ public static void main(String[] args)
     }
     }
     arr.remove(0);
-   // arr = preProcess(arr);
+   arr = preProcess(arr);
 
-    Tree regression = Genetic.geneticAlgorithm(arr, false,false);  
+    Tree regression = Genetic.geneticAlgorithm(arr, true,false);  
     System.out.println(regression.inOrderTraverse());
     }   
     catch (IOException e)   
@@ -150,7 +150,6 @@ public static void main(String[] args)
         }
     }
 
-    System.out.println(result.size());
     return result;
 
 
