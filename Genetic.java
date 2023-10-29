@@ -4,14 +4,14 @@ import java.util.*;
 //
 public class Genetic{
 
-    public static final int DEPTH = 5; //maximum depth of randomly generated trees
-    public static final int GENERATIONS = 200; //number of generations run for
-    public static final double PERCENT_SELECTION = .7; //this portion of the children will be selected using tournament selection and the rest are randomly generated to increase diversity
-    public static final double ERROR_PORTION = .5; //portion of dataset that's being checked to avoid overfitting hasn't been implemented yet, overfitting hasn't yet been an issue
+    public static final int DEPTH = 5; //maximum depth of randomly generated trees. Best for Rank sort: 5
+    public static final int GENERATIONS = 400; //number of generations run for
+    public static final double PERCENT_SELECTION = .75; //this portion of the children will be selected using tournament selection and the rest are randomly generated to increase diversity
+    public static final double ERROR_PORTION = .25; //portion of dataset that's being checked to avoid overfitting hasn't been implemented yet, overfitting hasn't yet been an issue
     public static final double MUTATION_RATE = .95; //what Math.Random has to beat for a mutation
     public static final double UPSET_RATE = .95; //what Math.Random has to beat to allow an upset in tournament selection
     public static final double TOURNAMENT_PERCENT = .2; //percent of population which participates in tournament selection
-    public static final int POPULATION_SIZE = 50000; //size of population
+    public static final int POPULATION_SIZE = 5000; //size of population
     public static Tree geneticAlgorithm(ArrayList<ArrayList<String>> data, boolean bonusFields, boolean bonusOperators)
     {
 
@@ -31,7 +31,7 @@ public class Genetic{
         {
             children = new ArrayList<Tree>();
 
-            //best range between 5-7/10
+            parents.sort(Comparator.naturalOrder());
             //experiment with portion which is composed by selection and change
             while(children.size() < PERCENT_SELECTION*parents.size()){
             //dial in portion for tournament select
@@ -87,7 +87,7 @@ public class Genetic{
 
     public static Tree rankSelection(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data, boolean override)
     {
-        trees.sort(Comparator.naturalOrder());
+
         int sum = 0;
         for(int i=1; i<=trees.size(); i++)
         {
