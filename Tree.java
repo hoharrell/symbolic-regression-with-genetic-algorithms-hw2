@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Tree{
+public class Tree implements Comparable<Tree>{
     public double fitness;
     public Node root;
     public ArrayList<Node> nodes;
@@ -219,6 +219,16 @@ public class Tree{
         return n.value;
     }
 
+    public int compareTo(Tree other)
+    {
+        if(other.fitness-this.fitness < 0)
+        return -1;
+
+        if(other.fitness-this.fitness > 0)
+        return 1;
+
+        return 0;
+    }
     public static double expressionResult(double x, Node n) {
 
         if (n.type.equals("operator")) {
