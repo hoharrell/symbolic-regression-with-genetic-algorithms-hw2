@@ -1,28 +1,32 @@
 import java.util.*;
 
 public class Tree implements Comparable<Tree>{
-    public double fitness;
-    public Node root;
-    public ArrayList<Node> nodes;
-    boolean bonusOperators;
+    public double fitness;//fitness score which can be assigned by evaluate
+    public Node root;//root node of tree
+    public ArrayList<Node> nodes;//all nodes currently in tree
+    boolean bonusOperators;//if true, operators will include logx, sinx, cosx, e^x
     // changed here
-    ArrayList<String> operators;
-    ArrayList<String> constants;
-    boolean bonusFields;
+    ArrayList<String> operators; //operators this tree can choose from
+    ArrayList<String> constants;//constants this tree can choose from
+    boolean bonusFields; //if true, then constants will include x_1, x_2, x_3
 
-
+    /*
+     * Helper class to store values of nodes
+     * and pointers to parents/children.
+     */
     public static class Node {
 
-        String type;
-        String val;
-        double value;
-        int descendants;
-        boolean bonusOperator;
+        String type;//operator, constant, or variable
+        String val;//whatever value is stored
+        double value;//if constant, this will be the constant's value
+        int descendants;//number of node descendants
+        boolean bonusOperator;//if this node is a bonus operator which can only have one child
 
         Node parent;
         Node leftChild;
         Node rightChild;
 
+        //Node constructor, given the symbol assigns fields properly
         Node(String symbol) {
             this.val = symbol;
             this.descendants = 0;
@@ -49,6 +53,7 @@ public class Tree implements Comparable<Tree>{
         }
     }
 
+    //Adds a node to the tree
     public Node addNode(String val, Node parent) {
         Node newNode = new Node(val);
         newNode.parent = parent;
@@ -61,6 +66,13 @@ public class Tree implements Comparable<Tree>{
         return newNode;
     }
 
+
+    /*
+     * Tree constructor which, given a root node, builds a new tree with
+     * just that root node, populating all fields according to
+     * Contains operators logx, sinx, cosx, and e^x if bonus operators is true
+     * Contains variables x_1,x_2,x_3 is bonus fields is true, otherwise just x
+     */
     public Tree(Node root, boolean bonusOperators, boolean bonusFields) {
         this.bonusOperators = bonusOperators;
         this.bonusFields = bonusFields;
@@ -97,7 +109,8 @@ public class Tree implements Comparable<Tree>{
     }
     /*
      * Creates a random tree of depth "depth"
-     * Operators include: e^x, sin(x), cos(x), log(x), *, +, -,/
+     * Contains operators logx, sinx, cosx, and e^x if bonus operators is true
+     * Contains variables x_1,x_2,x_3 is bonus fields is true, otherwise just x
      */
     public Tree(int depth, boolean bonusOperators, boolean bonusFields) {
         operators = new ArrayList<String>();
@@ -176,16 +189,23 @@ public class Tree implements Comparable<Tree>{
 
     }
 
+    //Passes value x for dataset 1 and 3 into expressionResult
+    //to calculate value when x is this value
     public double expressionResult(double x) {
         return expressionResult(x, root);
 
     }
 
+    //For dataset 2, where position 0,1, and 2 of vars
+    //are x_1,x_2,x_3 respectively.
     public double expressionResult(double[] vars)
     {
         return expressionResult(vars, root);
     }
 
+    //Calculates recursively the value the expression tree dictates
+    //For dataset 2, where position 0,1, and 2 of vars
+    //are x_1,x_2,x_3 respectively.
     public static double expressionResult(double[] vars, Node n)
     {
         if (n.type.equals("operator")) {
@@ -229,6 +249,9 @@ public class Tree implements Comparable<Tree>{
 
         return 0;
     }
+    //Calculates recursively the value the expression tree dictates
+    //For dataset 1 and 2, where variable value is double x.
+    //Starts from Node n.
     public static double expressionResult(double x, Node n) {
 
         if (n.type.equals("operator")) {
@@ -272,6 +295,7 @@ public class Tree implements Comparable<Tree>{
 
     }
 
+    //To make the function more legible
     public String inOrderTraverse() {
         return inOrderTraverse(root);
     }
@@ -290,13 +314,14 @@ public class Tree implements Comparable<Tree>{
 
     }
 
+    //Returns random node from Nodes
     public Node getRandomNode() {
         int randIndex = (int)((double)nodes.size()*Math.random());
         return nodes.get(randIndex); 
 
     }
 
-    
+    //Returns a new tree with exactly the same values as another.
     public Tree cloneTree() {
         Node cloneRoot = new Node(this.root.val);
         Tree newTree = new Tree(cloneRoot, this.bonusOperators, this.bonusFields);
@@ -306,6 +331,7 @@ public class Tree implements Comparable<Tree>{
     }
 
 
+    //Clones all the nodes from a given stree starting at root newroot.
     public void cloneNodes(Node newRoot, Node oldRoot, Tree newTree) {
         if (oldRoot != null) {
             if (oldRoot.leftChild != null) {
@@ -319,6 +345,8 @@ public class Tree implements Comparable<Tree>{
         }
     }
 
+    //Performs the crossing over of the genetic algorithm
+    //by swapping subtrees from two random nodes.
     public static Tree[] crossover(Tree self, Tree other) {
         Tree selfClone = self.cloneTree();
         Tree otherClone = other.cloneTree();
@@ -367,6 +395,7 @@ public class Tree implements Comparable<Tree>{
         return returnArray;
     }
 
+    //Updates the nodes arraylist
     public static void updateNodes(Node node, Tree tree)
     {
         if(node == null)
@@ -377,11 +406,14 @@ public class Tree implements Comparable<Tree>{
         updateNodes(node.rightChild, tree);
     }
 
+    //Calls simplify, easier to call from outside tree class
     public void simplify()
     {
         simplify(this.root);
     }
 
+    //Attempts to simplify the expression tree by combining constants and variables
+    //that can be reduced.
     public void simplify(Node node)
     {
         if(node == null)
@@ -484,6 +516,10 @@ public class Tree implements Comparable<Tree>{
         
     }
 
+    /*
+     * Mutates the value of some random node from nodes.
+     * Maintains type.
+     */
     public Tree mutate() {
         Tree  clone = this.cloneTree();
         Node node = clone.getRandomNode();
