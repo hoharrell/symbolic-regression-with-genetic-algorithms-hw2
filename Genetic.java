@@ -4,17 +4,23 @@ import java.util.*;
 //
 public class Genetic{
 
-    public static final int DEPTH = 5; //maximum depth of randomly generated trees. Best for Rank sort: 5
-    public static final int GENERATIONS = 400; //number of generations run for
-    public static final double PERCENT_SELECTION = .75; //this portion of the children will be selected using tournament selection and the rest are randomly generated to increase diversity
+    public static final int DEPTH = 5; //maximum depth of randomly generated trees. Best for Rank select: 5
+    public static final int GENERATIONS = 800; //number of generations run for
+    public static final double PERCENT_SELECTION = .8; //this portion of the children will be selected using tournament selection and the rest are randomly generated to increase diversity
     public static final double ERROR_PORTION = .25; //portion of dataset that's being checked to avoid overfitting hasn't been implemented yet, overfitting hasn't yet been an issue
-    public static final double MUTATION_RATE = .95; //what Math.Random has to beat for a mutation
+    public static final double MUTATION_RATE = .9; //what Math.Random has to beat for a mutation
     public static final double UPSET_RATE = .95; //what Math.Random has to beat to allow an upset in tournament selection
     public static final double TOURNAMENT_PERCENT = .2; //percent of population which participates in tournament selection
-    public static final int POPULATION_SIZE = 5000; //size of population
+    public static final int POPULATION_SIZE = 10000; //size of population
+    /*
+     * Performs the genetic algorithm on the dataset represented by data.
+     * If bonusFields is false, uses only one variable, otherwise uses three.
+     * If bonusOperators is false, excludes e^x, log(x), sin(x), cos(x)
+     */
     public static Tree geneticAlgorithm(ArrayList<ArrayList<String>> data, boolean bonusFields, boolean bonusOperators)
     {
 
+        //Generates initial population
         ArrayList<Tree> parents = new ArrayList<Tree>();
         Tree temp;
         Tree best;
@@ -27,15 +33,16 @@ public class Genetic{
         }
         ArrayList<Tree> children;
         best = parents.get(0);
+        //Peforms genetic algorithm
         for(int i=0; i<GENERATIONS; i++ )
         {
             children = new ArrayList<Tree>();
 
             parents.sort(Comparator.naturalOrder());
-            //experiment with portion which is composed by selection and change
             while(children.size() < PERCENT_SELECTION*parents.size()){
             //dial in portion for tournament select
 
+                //different options for selection
                 Tree[] arr = rankSelection(parents, data);
                 //Tree[] arr = tournamentSelect(parents, data);
                 //Tree[] arr = rouletteSelect(parents, data);
@@ -59,12 +66,14 @@ public class Genetic{
                 child.fitness = evaluate(data, child, (int)(data.size()*ERROR_PORTION));
 
     
+                //checks to make sure no division by zero arises
                 if(Double.isFinite(child.fitness) && child.fitness < best.fitness)
                     best = child;
                 
                 if(Double.isFinite(child.fitness))
                     children.add(child);
             }
+            //populates left over portion with random trees
             while(children.size()<parents.size())
             {
                 temp = new Tree(DEPTH, bonusOperators, bonusFields);
@@ -76,6 +85,7 @@ public class Genetic{
 
                 }
             }
+            //gives output of current generation
             System.out.println("Current Generation: " + i + " with fitness " + best.fitness + "from function" + best.inOrderTraverse() + " and size " + children.size());
             parents = children;
             if(best.fitness == 0)
@@ -85,6 +95,7 @@ public class Genetic{
 
     }
 
+    //Performs rank selection
     public static Tree rankSelection(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data, boolean override)
     {
 
@@ -106,6 +117,7 @@ public class Genetic{
 
     }
 
+    //Performs rank selection twice, returning an array of both trees
     public static Tree[] rankSelection(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data)
     {
         Tree[] arr = new Tree[2];
@@ -114,6 +126,7 @@ public class Genetic{
         return arr;
     }
 
+    //Performs roulette selection
     public static Tree rouletteSelect(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data, boolean override)
     {
         double sum = 0;
@@ -135,6 +148,7 @@ public class Genetic{
         return null;
     }
 
+    //Performs roulette selection twice, returning an array of both trees
     public static Tree[] rouletteSelect(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data)
     {
         Tree[] arr = new Tree[2];
@@ -143,7 +157,7 @@ public class Genetic{
         return arr;
     }
 
-
+    //Performs tournament selection twice, returning an array of both trees
     public static Tree[] tournamentSelect(ArrayList<Tree> trees, ArrayList<ArrayList<String>> data)
     {
         Tree[] arr = new Tree[2];
