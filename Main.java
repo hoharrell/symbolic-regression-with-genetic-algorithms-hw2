@@ -12,7 +12,7 @@ public static void main(String[] args)
     ArrayList<ArrayList<String>> arr = new ArrayList<ArrayList<String>>();  
     try   
     {  
-    BufferedReader br = new BufferedReader(new FileReader("dataset2.csv"));
+    BufferedReader br = new BufferedReader(new FileReader("dataset3.csv"));
     while ((newLine = br.readLine()) != null)   //returns a Boolean value  
     {
         ArrayList<String> subArr = new ArrayList<String>();
@@ -23,9 +23,9 @@ public static void main(String[] args)
     }
     }
     arr.remove(0);
-   arr = preProcess(arr);
+   //arr = preProcess(arr);
 
-    Tree regression = Genetic.geneticAlgorithm(arr, true,false);  
+    Tree regression = Genetic.geneticAlgorithm(arr, false,true);  
     System.out.println(regression.inOrderTraverse());
     }   
     catch (IOException e)   
@@ -88,6 +88,10 @@ public static void main(String[] args)
 
  }
 
+ /*
+  * Helper class to sort based on f(x_1,x_2,x_3)
+  so we can obtain the interquartile range.
+  */
  public static class Data implements Comparable<Data>{
     ArrayList<String> arr;
 
@@ -110,6 +114,10 @@ public static void main(String[] args)
  }
  
 
+ /*
+  * Scales x_1 and x_2 down by 10^6 and reduces the data only
+  to the interquartile range.
+  */
  public static ArrayList<ArrayList<String>> preProcess(ArrayList<ArrayList<String>> data)
  {
 
